@@ -7,7 +7,6 @@ namespace DairyMart.Views
     public partial class UcAdmin : UserControl
     {
         private AdminController adminController = new AdminController();
-
         private int idProdukTerpilih = 0;
 
         public UcAdmin()
@@ -22,7 +21,6 @@ namespace DairyMart.Views
 
         private void RefreshSemuaTabel()
         {
-            // PASTIKAN pakai nama adminController biar gak error merah lagi!
             dgvStok.DataSource = adminController.GetStokOnline();
             dgvRiwayat.DataSource = adminController.GetRiwayatTransaksi();
         }
@@ -36,7 +34,9 @@ namespace DairyMart.Views
                 // Tarik data dari baris yang diklik
                 idProdukTerpilih = Convert.ToInt32(row.Cells["id_produk"].Value);
                 txtNamaProduk.Text = row.Cells["nama_produk"].Value.ToString();
-                txtJumlah.Text = row.Cells["stok"].Value.ToString();
+
+                // FIX KETEMU: Ubah "stok" jadi "stok_online"
+                txtJumlah.Text = row.Cells["stok_online"].Value.ToString();
                 txtStatusKelayakan.Text = row.Cells["status_kelayakan"].Value.ToString();
 
                 // Ngurusin tanggal biar gak error
@@ -44,7 +44,7 @@ namespace DairyMart.Views
                 {
                     string tglMentah = row.Cells["tgl_kadaluarsa"].Value.ToString();
                     DateTime tgl = DateTime.Parse(tglMentah);
-                    txtTglKadaluarsa.Text = tgl.ToString("dd-MM-yyyy");
+                    txtTglKadaluarsa.Text = tgl.ToString("yyyy-MM-dd"); // Format standarnya C# ke DB
                 }
                 else
                 {
@@ -56,7 +56,6 @@ namespace DairyMart.Views
         private void btnTambah_Click(object sender, EventArgs e)
         {
             string namaBaru = txtNamaProduk.Text;
-            string statusBaru = txtStatusKelayakan.Text;
             string tglBaru = txtTglKadaluarsa.Text;
 
             int stokBaru = 0;
@@ -68,12 +67,13 @@ namespace DairyMart.Views
                 return;
             }
 
+            // AMAN: Cuma 3 Parameter
             string respon = adminController.TambahProdukBaru(namaBaru, stokBaru, tglBaru);
 
             if (respon == "SUKSES")
             {
                 MessageBox.Show("Produk baru berhasil ditambah!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                RefreshSemuaTabel(); // Panggil fungsi refresh yang baru
+                RefreshSemuaTabel();
                 BersihkanForm();
             }
             else
@@ -91,11 +91,13 @@ namespace DairyMart.Views
             }
 
             string namaBaru = txtNamaProduk.Text;
-            string statusBaru = txtStatusKelayakan.Text;
+            string tglBaru = txtTglKadaluarsa.Text; // FIX KETEMU: Tadi lu lupa ngambil ini
+
             int stokBaru = Convert.ToInt32(txtJumlah.Text);
             int hargaBaru = 25000;
 
-            string respon = adminController.UpdateProduk(idProdukTerpilih, namaBaru, hargaBaru, stokBaru, statusBaru);
+            // FIX KETEMU: Parameter terakhir diganti jadi tglBaru (bukan statusBaru)
+            string respon = adminController.UpdateProduk(idProdukTerpilih, namaBaru, hargaBaru, stokBaru, tglBaru);
 
             if (respon == "SUKSES")
             {
@@ -126,7 +128,7 @@ namespace DairyMart.Views
                 if (respon == "SUKSES")
                 {
                     MessageBox.Show("Produk sukses dihapus!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    RefreshSemuaTabel(); 
+                    RefreshSemuaTabel();
                     BersihkanForm();
                 }
                 else
