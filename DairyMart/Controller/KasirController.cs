@@ -7,6 +7,7 @@ namespace DairyMart.Controllers
 {
     public class KasirController
     {
+
         public DataTable GetStokOffline()
         {
             DataTable dt = new DataTable();
@@ -15,7 +16,7 @@ namespace DairyMart.Controllers
                 using (var conn = new Koneksi().GetConnection())
                 {
                     conn.Open();
-                    string query = "SELECT id_produk, nama_produk, stok_offline, tgl_kadaluarsa, status_kelayakan FROM produk ORDER BY id_produk ASC";
+                    string query = "SELECT * FROM v_stok_kulkas ORDER BY id_produk ASC";
                     using (var cmd = new NpgsqlCommand(query, conn))
                     {
                         using (var da = new NpgsqlDataAdapter(cmd)) { da.Fill(dt); }
@@ -26,24 +27,23 @@ namespace DairyMart.Controllers
             return dt;
         }
 
-        public string TambahProdukOffline(string nama, int stokOffline, string status, string tglKadaluarsa)
+
+        public string TambahProdukOffline(string nama, int stokOffline, string tglKadaluarsa)
         {
             using (var conn = new Koneksi().GetConnection())
             {
                 try
                 {
                     conn.Open();
-
                     string query = @"INSERT INTO produk 
-                             (id_kategori, nama_produk, ukuran, harga, stok_offline, stok_online, tgl_kadaluarsa, status_kelayakan) 
+                             (id_kategori, nama_produk, ukuran, harga, stok_offline, stok_online, tgl_kadaluarsa) 
                              VALUES 
-                             (1, @nama, 'Default', 25000, @stokOffline, 0, @tgl, @status)";
+                             (1, @nama, 'Default', 25000, @stokOffline, 0, @tgl)";
 
                     using (var cmd = new NpgsqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@nama", nama);
                         cmd.Parameters.AddWithValue("@stokOffline", stokOffline);
-                        cmd.Parameters.AddWithValue("@status", status);
 
                         DateTime parsedDate;
                         if (DateTime.TryParse(tglKadaluarsa, out parsedDate)) { cmd.Parameters.AddWithValue("@tgl", parsedDate); }
@@ -57,20 +57,19 @@ namespace DairyMart.Controllers
             }
         }
 
-        public string UpdateProdukOffline(int idProduk, string nama, int stokOffline, string status, string tglKadaluarsa)
+        public string UpdateProdukOffline(int idProduk, string nama, int stokOffline, string tglKadaluarsa)
         {
             using (var conn = new Koneksi().GetConnection())
             {
                 try
                 {
                     conn.Open();
-                    string query = "UPDATE produk SET nama_produk = @nama, stok_offline = @stokOffline, status_kelayakan = @status, tgl_kadaluarsa = @tgl WHERE id_produk = @id";
+                    string query = "UPDATE produk SET nama_produk = @nama, stok_offline = @stokOffline, tgl_kadaluarsa = @tgl WHERE id_produk = @id";
                     using (var cmd = new NpgsqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@id", idProduk);
                         cmd.Parameters.AddWithValue("@nama", nama);
                         cmd.Parameters.AddWithValue("@stokOffline", stokOffline);
-                        cmd.Parameters.AddWithValue("@status", status);
 
                         DateTime parsedDate;
                         if (DateTime.TryParse(tglKadaluarsa, out parsedDate)) { cmd.Parameters.AddWithValue("@tgl", parsedDate); }
@@ -114,22 +113,13 @@ namespace DairyMart.Controllers
                 using (var conn = new Koneksi().GetConnection())
                 {
                     conn.Open();
-                    string queryUpdate = "UPDATE produk SET stok_offline = stok_offline - @qty WHERE id_produk = @id_prod";
-                    using (var cmdUpdate = new NpgsqlCommand(queryUpdate, conn))
+                    string query = "CALL sp_kasir_jualan(@id_prod, @qty, @total)";
+                    using (var cmd = new NpgsqlCommand(query, conn))
                     {
-                        cmdUpdate.Parameters.AddWithValue("@qty", qty);
-                        cmdUpdate.Parameters.AddWithValue("@id_prod", idProduk);
-                        cmdUpdate.ExecuteNonQuery();
-                    }
-
-                    string queryInsert = "INSERT INTO transaksi_offline (id_produk, kuantitas, total_harga, tgl_transaksi) " +
-                                         "VALUES (@id_prod, @qty, @total, CURRENT_DATE)";
-                    using (var cmdInsert = new NpgsqlCommand(queryInsert, conn))
-                    {
-                        cmdInsert.Parameters.AddWithValue("@id_prod", idProduk);
-                        cmdInsert.Parameters.AddWithValue("@qty", qty);
-                        cmdInsert.Parameters.AddWithValue("@total", total);
-                        cmdInsert.ExecuteNonQuery();
+                        cmd.Parameters.AddWithValue("@id_prod", idProduk);
+                        cmd.Parameters.AddWithValue("@qty", qty);
+                        cmd.Parameters.AddWithValue("@total", total);
+                        cmd.ExecuteNonQuery();
                     }
                     return "SUKSES";
                 }
