@@ -65,6 +65,7 @@
             dgvStokOffline.RowHeadersWidth = 51;
             dgvStokOffline.Size = new Size(489, 330);
             dgvStokOffline.TabIndex = 5;
+            dgvStokOffline.CellClick += dgvStokOffline_CellClick;
             // 
             // btnLogout
             // 

@@ -81,7 +81,7 @@
             tabPage1.Location = new Point(4, 29);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(693, 369);
+            tabPage1.Size = new Size(693, 344);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Manajemen Stok";
             tabPage1.UseVisualStyleBackColor = true;
@@ -89,22 +89,24 @@
             // btnEdit
             // 
             btnEdit.BackColor = Color.Yellow;
-            btnEdit.Location = new Point(580, 321);
+            btnEdit.Location = new Point(582, 312);
             btnEdit.Name = "btnEdit";
             btnEdit.Size = new Size(81, 26);
             btnEdit.TabIndex = 11;
             btnEdit.Text = "Edit";
             btnEdit.UseVisualStyleBackColor = false;
+            btnEdit.Click += btnEdit_Click;
             // 
             // btnHapus
             // 
             btnHapus.BackColor = Color.IndianRed;
-            btnHapus.Location = new Point(484, 320);
+            btnHapus.Location = new Point(486, 311);
             btnHapus.Name = "btnHapus";
             btnHapus.Size = new Size(84, 29);
             btnHapus.TabIndex = 10;
             btnHapus.Text = "Hapus";
             btnHapus.UseVisualStyleBackColor = false;
+            btnHapus.Click += btnHapus_Click;
             // 
             // label4
             // 
@@ -142,7 +144,7 @@
             // btnTambahStok
             // 
             btnTambahStok.BackColor = Color.FromArgb(0, 192, 192);
-            btnTambahStok.Location = new Point(400, 320);
+            btnTambahStok.Location = new Point(402, 311);
             btnTambahStok.Name = "btnTambahStok";
             btnTambahStok.Size = new Size(76, 29);
             btnTambahStok.TabIndex = 3;
@@ -167,6 +169,7 @@
             dgvStok.RowHeadersWidth = 51;
             dgvStok.Size = new Size(513, 301);
             dgvStok.TabIndex = 0;
+            dgvStok.CellClick += dgvStok_CellClick;
             // 
             // label1
             // 
