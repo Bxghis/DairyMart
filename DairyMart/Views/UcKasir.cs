@@ -1,0 +1,170 @@
+﻿using System;
+using System.Windows.Forms;
+using DairyMart.Controllers; 
+
+namespace DairyMart.Views
+{
+    public partial class UcKasir : UserControl
+    {
+
+        private KasirController kasirController = new KasirController();
+
+
+        private int idProdukTerpilih = 0;
+
+        public UcKasir()
+        {
+            InitializeComponent();
+        }
+
+        private void UcKasir_Load(object sender, EventArgs e)
+        {
+            RefreshTabel();
+        }
+
+        private void RefreshTabel()
+        {
+            dgvStokOffline.DataSource = kasirController.GetStokOffline();
+        }
+
+
+        private void dgvStokOffline_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                DataGridViewRow row = dgvStokOffline.Rows[e.RowIndex];
+
+                idProdukTerpilih = Convert.ToInt32(row.Cells["id_produk"].Value);
+
+                txtNamaProduk.Text = row.Cells["nama_produk"].Value.ToString();
+                txtJumlah.Text = row.Cells["stok_offline"].Value.ToString();
+                txtStatusKelayakan.Text = row.Cells["status_kelayakan"].Value.ToString();
+
+                if (row.Cells["tgl_kadaluarsa"].Value != DBNull.Value)
+                {
+                    DateTime tgl = DateTime.Parse(row.Cells["tgl_kadaluarsa"].Value.ToString());
+                    txtTglKadaluarsa.Text = tgl.ToString("dd-MM-yyyy");
+                }
+                else
+                {
+                    txtTglKadaluarsa.Text = "";
+                }
+            }
+        }
+
+        private void btnTambahStok_Click(object sender, EventArgs e)
+        {
+            string nama = txtNamaProduk.Text;
+            string status = txtStatusKelayakan.Text;
+            string tgl = txtTglKadaluarsa.Text;
+            int qty = 0;
+            int.TryParse(txtJumlah.Text, out qty);
+
+            if (string.IsNullOrWhiteSpace(nama))
+            {
+                MessageBox.Show("Isi nama produk dulu bosku!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string respon = kasirController.TambahProdukOffline(nama, qty, status, tgl);
+            if (respon == "SUKSES")
+            {
+                MessageBox.Show("Barang baru berhasil masuk kulkas!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                RefreshTabel();
+                BersihkanForm();
+            }
+            else { MessageBox.Show(respon, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            if (idProdukTerpilih == 0) return;
+
+            int qty = Convert.ToInt32(txtJumlah.Text);
+            string respon = kasirController.UpdateProdukOffline(idProdukTerpilih, txtNamaProduk.Text, qty, txtStatusKelayakan.Text, txtTglKadaluarsa.Text);
+
+            if (respon == "SUKSES")
+            {
+                MessageBox.Show("Data kulkas berhasil diupdate!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                RefreshTabel();
+            }
+        }
+
+        private void btnHapus_Click(object sender, EventArgs e)
+        {
+            if (idProdukTerpilih == 0) return;
+
+            DialogResult dialog = MessageBox.Show("Yakin hapus barang ini dari etalase?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dialog == DialogResult.Yes)
+            {
+                string respon = kasirController.HapusProdukOffline(idProdukTerpilih);
+                if (respon == "SUKSES")
+                {
+                    MessageBox.Show("Barang musnah dari kulkas!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    RefreshTabel();
+                    BersihkanForm();
+                }
+                else { MessageBox.Show(respon, "Gagal", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            }
+        }
+
+        private void btnBayar_Click(object sender, EventArgs e)
+        {
+            if (idProdukTerpilih == 0)
+            {
+                MessageBox.Show("Klik dulu susu mana yang mau dibeli pelanggan di tabel!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int qtyBeli = 0;
+            int.TryParse(txtJumlah.Text, out qtyBeli);
+
+            if (qtyBeli <= 0)
+            {
+                MessageBox.Show("Jumlah beli harus lebih dari 0 dong!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int hargaSusu = 25000;
+            int totalBayar = qtyBeli * hargaSusu;
+
+            // Panggil fungsi Jualan
+            string respon = kasirController.SimpanTransaksiOffline(idProdukTerpilih, qtyBeli, totalBayar);
+
+            if (respon == "SUKSES")
+            {
+                string struk = $"TRANSAKSI BERHASIL!\n\nProduk: {txtNamaProduk.Text}\nJumlah: {qtyBeli}\nTotal Bayar: Rp {totalBayar}\n\nSisa stok offline udah otomatis kepotong!";
+                MessageBox.Show(struk, "Struk Kasir", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                RefreshTabel();
+                BersihkanForm();
+            }
+            else
+            {
+                MessageBox.Show(respon, "Transaksi Gagal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BersihkanForm()
+        {
+            txtNamaProduk.Clear();
+            txtJumlah.Clear();
+            txtStatusKelayakan.Clear();
+            txtTglKadaluarsa.Clear();
+            idProdukTerpilih = 0;
+        }
+
+        private void btnLogout_Click(object sender, EventArgs e)
+        {
+            DialogResult dialog = MessageBox.Show("Yakin mau tutup shift dan logout?", "Tutup Toko", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (dialog == DialogResult.Yes)
+            {
+                Form bapak = this.FindForm();
+                if (bapak != null)
+                {
+                    new FormLogin().Show();
+                    bapak.Close();
+                }
+            }
+        }
+    }
+}
