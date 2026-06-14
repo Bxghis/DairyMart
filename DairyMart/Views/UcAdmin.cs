@@ -68,7 +68,7 @@ namespace DairyMart.Views
                 return;
             }
 
-            string respon = adminController.TambahProdukBaru(namaBaru, stokBaru, statusBaru, tglBaru);
+            string respon = adminController.TambahProdukBaru(namaBaru, stokBaru, tglBaru);
 
             if (respon == "SUKSES")
             {

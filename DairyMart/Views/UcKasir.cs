@@ -66,7 +66,7 @@ namespace DairyMart.Views
                 return;
             }
 
-            string respon = kasirController.TambahProdukOffline(nama, qty, status, tgl);
+            string respon = kasirController.TambahProdukOffline(nama, qty, tgl);
             if (respon == "SUKSES")
             {
                 MessageBox.Show("Barang baru berhasil masuk kulkas!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -81,7 +81,7 @@ namespace DairyMart.Views
             if (idProdukTerpilih == 0) return;
 
             int qty = Convert.ToInt32(txtJumlah.Text);
-            string respon = kasirController.UpdateProdukOffline(idProdukTerpilih, txtNamaProduk.Text, qty, txtStatusKelayakan.Text, txtTglKadaluarsa.Text);
+            string respon = kasirController.UpdateProdukOffline(idProdukTerpilih, txtNamaProduk.Text, qty, txtTglKadaluarsa.Text);
 
             if (respon == "SUKSES")
             {
