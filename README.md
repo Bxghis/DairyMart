@@ -1,4 +1,4 @@
-# 🥛 DairyMart : Pengembangan Aplikasi Kasir dan Layanan Langganan Terintegrasi Berbasis Desktop pada Susu Pasteurisasi Ambulu
+# 🥛 DairyMart : Sistem Informasi Kasir dan Layanan Langganan Susu Pasteurisasi Ambulu
 
 DairyMart adalah aplikasi *Point of Sale* (POS) dan Sistem Manajemen Inventaris cerdas yang dibangun menggunakan **C# (.NET Windows Forms)** dan **PostgreSQL**. Aplikasi ini dirancang khusus untuk memisahkan logika penjualan fisik (toko/kasir) dan penjualan digital (online/langganan) dalam satu ekosistem *database* yang terintegrasi.
 
