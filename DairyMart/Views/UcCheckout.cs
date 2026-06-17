@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
-using DairyMart.Controllers; // Wajib biar bisa nyambung ke controller kasir/checkout lu
+using DairyMart.Controllers;
+using DairyMart.Models; // 🔥 WAJIB DITAMBAHIN BIAR BISA BACA SESSIONDATA!
 
 namespace DairyMart.Views
 {
@@ -46,8 +47,8 @@ namespace DairyMart.Views
                 Form bapak = this.FindForm();
                 if (bapak != null)
                 {
-                    new FormLogin().Show(); 
-                    bapak.Close(); 
+                    new FormLogin().Show();
+                    bapak.Close();
                 }
             }
         }
@@ -80,7 +81,11 @@ namespace DairyMart.Views
 
             int totalAkhir = hargaProdukBeli * qtyBeli;
 
-            string respon = controller.ProsesPembayaran(namaProdukBeli, cmbTipeTransaksi.Text, cmbMetode.Text, totalAkhir, qtyBeli);
+            // 🔥 PERUBAHAN 1: Tarik ID dari ingatan aplikasi (SessionData)
+            int idPelangganAsli = SessionData.IdPelangganAktif;
+
+            // 🔥 PERUBAHAN 2: Masukin idPelangganAsli sebagai parameter PERTAMA!
+            string respon = controller.ProsesPembayaran(idPelangganAsli, namaProdukBeli, cmbTipeTransaksi.Text, cmbMetode.Text, totalAkhir, qtyBeli);
 
             if (respon == "SUKSES")
             {
@@ -115,10 +120,9 @@ namespace DairyMart.Views
                 if (bapak != null)
                 {
                     new FormLogin().Show();
-                    bapak.Close();        
+                    bapak.Close();
                 }
             }
         }
-
     }
 }

@@ -6,7 +6,7 @@ namespace DairyMart.Controllers
 {
     public class CheckoutController
     {
-        public string ProsesPembayaran(string namaProduk, string tipeTransaksi, string metodePembayaran, int totalBayar, int qtyBeli)
+        public string ProsesPembayaran(int idPelanggan, string namaProduk, string tipeTransaksi, string metodePembayaran, int totalBayar, int qtyBeli)
         {
             using (var conn = new Koneksi().GetConnection())
             {
@@ -14,12 +14,24 @@ namespace DairyMart.Controllers
                 {
                     conn.Open();
 
+                    // 🔥 PERUBAHAN 1: PENERJEMAH OTOMATIS (Biar sinkron sama Database lu!)
+                    string namaFixDB = namaProduk;
+                    if (namaProduk.Contains("1000 ML")) namaFixDB = "Susu Segar 1000 ML";
+                    else if (namaProduk.Contains("750 ML")) namaFixDB = "Susu Segar 750 ML";
+                    else if (namaProduk.Contains("500 ML")) namaFixDB = "Susu Segar 500 ML";
+
                     int idProduk = 0;
                     using (var cmdProd = new NpgsqlCommand("SELECT id_produk FROM produk WHERE nama_produk = @nama LIMIT 1", conn))
                     {
-                        cmdProd.Parameters.AddWithValue("@nama", namaProduk);
+                        cmdProd.Parameters.AddWithValue("@nama", namaFixDB);
                         var res = cmdProd.ExecuteScalar();
                         if (res != null) idProduk = Convert.ToInt32(res);
+                    }
+
+                    // 🔥 PERUBAHAN 2: Tembok Pertahanan! Biar gak error merah kalo namanya masih beda.
+                    if (idProduk == 0)
+                    {
+                        return $"Waduh! Produk '{namaFixDB}' gak ketemu di database bray! Cek ejaannya.";
                     }
 
                     int idMetode = 1; // Default
@@ -29,8 +41,6 @@ namespace DairyMart.Controllers
                         var res = cmdMet.ExecuteScalar();
                         if (res != null) idMetode = Convert.ToInt32(res);
                     }
-
-                    int idPelanggan = 3;
 
                     string query = "CALL sp_checkout_langganan(@pel, @prod, @met, @qty, @tot)";
                     using (var cmd = new NpgsqlCommand(query, conn))

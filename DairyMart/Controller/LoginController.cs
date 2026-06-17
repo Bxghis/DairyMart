@@ -1,13 +1,12 @@
 ﻿using System;
 using Npgsql;
-using DairyMart.Models; // Memanggil folder Models untuk class Koneksi
+using DairyMart.Models;
 
 namespace DairyMart.Controllers
 {
     public class LoginController
     {
-        // Fungsi ini sekarang mengembalikan Role (Admin / Pelanggan) jika sukses, 
-        // atau kata "GAGAL" / pesan error jika gagal.
+
         public string ProsesLogin(string wa, string password)
         {
             if (string.IsNullOrWhiteSpace(wa) || string.IsNullOrWhiteSpace(password))
@@ -21,22 +20,27 @@ namespace DairyMart.Controllers
                 {
                     conn.Open();
 
-                    string query = "SELECT role FROM pelanggan WHERE no_wa = @wa AND password = @password";
+                    string query = "SELECT id_pelanggan, nama_pelanggan, role FROM pelanggan WHERE no_wa = @wa AND password = @password";
 
                     using (var cmd = new NpgsqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("wa", wa);
                         cmd.Parameters.AddWithValue("password", password);
 
-                        var result = cmd.ExecuteScalar();
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read()) // Kalau akunnya ketemu di database
+                            {
+                                SessionData.IdPelangganAktif = Convert.ToInt32(reader["id_pelanggan"]);
+                                SessionData.NamaPelangganAktif = reader["nama_pelanggan"].ToString();
 
-                        if (result != null)
-                        {
-                            return result.ToString();
-                        }
-                        else
-                        {
-                            return "GAGAL";
+                       
+                                return reader["role"].ToString();
+                            }
+                            else
+                            {
+                                return "GAGAL";
+                            }
                         }
                     }
                 }
