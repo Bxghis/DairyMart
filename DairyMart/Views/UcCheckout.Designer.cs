@@ -35,11 +35,12 @@
             label1 = new Label();
             btnBayar = new Button();
             cmbMetode = new ComboBox();
-            lblHarga = new Label();
-            lblNamaProduk = new Label();
             btnLogout = new Button();
             btnKembali = new Button();
             btnLogoutt = new Button();
+            npgsqlDataAdapter1 = new Npgsql.NpgsqlDataAdapter();
+            dgvKeranjangCheckout = new DataGridView();
+            ((System.ComponentModel.ISupportInitialize)dgvKeranjangCheckout).BeginInit();
             SuspendLayout();
             // 
             // label3
@@ -106,24 +107,6 @@
             cmbMetode.Size = new Size(151, 28);
             cmbMetode.TabIndex = 11;
             // 
-            // lblHarga
-            // 
-            lblHarga.AutoSize = true;
-            lblHarga.Location = new Point(37, 218);
-            lblHarga.Name = "lblHarga";
-            lblHarga.Size = new Size(50, 20);
-            lblHarga.TabIndex = 10;
-            lblHarga.Text = "Harga";
-            // 
-            // lblNamaProduk
-            // 
-            lblNamaProduk.AutoSize = true;
-            lblNamaProduk.Location = new Point(37, 147);
-            lblNamaProduk.Name = "lblNamaProduk";
-            lblNamaProduk.Size = new Size(99, 20);
-            lblNamaProduk.TabIndex = 9;
-            lblNamaProduk.Text = "Nama Produk";
-            // 
             // btnLogout
             // 
             btnLogout.Location = new Point(554, 497);
@@ -132,7 +115,7 @@
             btnLogout.TabIndex = 18;
             btnLogout.Text = "Selesai dan Logout";
             btnLogout.UseVisualStyleBackColor = true;
-            btnLogout.Click += btnLogout_Click;
+            btnLogout.Click += btnLogoutt_Click;
             // 
             // btnKembali
             // 
@@ -154,11 +137,28 @@
             btnLogoutt.UseVisualStyleBackColor = true;
             btnLogoutt.Click += btnLogoutt_Click;
             // 
+            // npgsqlDataAdapter1
+            // 
+            npgsqlDataAdapter1.DeleteCommand = null;
+            npgsqlDataAdapter1.InsertCommand = null;
+            npgsqlDataAdapter1.SelectCommand = null;
+            npgsqlDataAdapter1.UpdateCommand = null;
+            // 
+            // dgvKeranjangCheckout
+            // 
+            dgvKeranjangCheckout.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvKeranjangCheckout.Location = new Point(42, 88);
+            dgvKeranjangCheckout.Name = "dgvKeranjangCheckout";
+            dgvKeranjangCheckout.RowHeadersWidth = 51;
+            dgvKeranjangCheckout.Size = new Size(300, 188);
+            dgvKeranjangCheckout.TabIndex = 21;
+            // 
             // UcCheckout
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Silver;
+            Controls.Add(dgvKeranjangCheckout);
             Controls.Add(btnLogoutt);
             Controls.Add(btnKembali);
             Controls.Add(btnLogout);
@@ -169,11 +169,10 @@
             Controls.Add(label1);
             Controls.Add(btnBayar);
             Controls.Add(cmbMetode);
-            Controls.Add(lblHarga);
-            Controls.Add(lblNamaProduk);
             Name = "UcCheckout";
             Size = new Size(758, 555);
             Load += UcCheckout_Load;
+            ((System.ComponentModel.ISupportInitialize)dgvKeranjangCheckout).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -187,10 +186,10 @@
         private Label label1;
         private Button btnBayar;
         private ComboBox cmbMetode;
-        private Label lblHarga;
-        private Label lblNamaProduk;
         private Button btnLogout;
         private Button btnKembali;
         private Button btnLogoutt;
+        private Npgsql.NpgsqlDataAdapter npgsqlDataAdapter1;
+        private DataGridView dgvKeranjangCheckout;
     }
 }

@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             btnLanjut = new Button();
-            rb500 = new RadioButton();
-            rb750 = new RadioButton();
-            rb1000 = new RadioButton();
             label1 = new Label();
+            cb500 = new CheckBox();
+            cb750 = new CheckBox();
+            cb1000 = new CheckBox();
             SuspendLayout();
             // 
             // btnLanjut
@@ -45,39 +45,6 @@
             btnLanjut.UseVisualStyleBackColor = true;
             btnLanjut.Click += btnLanjut_Click;
             // 
-            // rb500
-            // 
-            rb500.AutoSize = true;
-            rb500.Location = new Point(524, 189);
-            rb500.Name = "rb500";
-            rb500.Size = new Size(118, 24);
-            rb500.TabIndex = 8;
-            rb500.TabStop = true;
-            rb500.Text = "SUSU 500 ML";
-            rb500.UseVisualStyleBackColor = true;
-            // 
-            // rb750
-            // 
-            rb750.AutoSize = true;
-            rb750.Location = new Point(306, 189);
-            rb750.Name = "rb750";
-            rb750.Size = new Size(118, 24);
-            rb750.TabIndex = 7;
-            rb750.TabStop = true;
-            rb750.Text = "SUSU 750 ML";
-            rb750.UseVisualStyleBackColor = true;
-            // 
-            // rb1000
-            // 
-            rb1000.AutoSize = true;
-            rb1000.Location = new Point(83, 189);
-            rb1000.Name = "rb1000";
-            rb1000.Size = new Size(126, 24);
-            rb1000.TabIndex = 6;
-            rb1000.TabStop = true;
-            rb1000.Text = "SUSU 1000 ML";
-            rb1000.UseVisualStyleBackColor = true;
-            // 
             // label1
             // 
             label1.AutoSize = true;
@@ -88,15 +55,46 @@
             label1.TabIndex = 5;
             label1.Text = "DAIRYMART";
             // 
+            // cb500
+            // 
+            cb500.AutoSize = true;
+            cb500.Location = new Point(108, 206);
+            cb500.Name = "cb500";
+            cb500.Size = new Size(119, 24);
+            cb500.TabIndex = 10;
+            cb500.Text = "SUSU 500 ML";
+            cb500.UseVisualStyleBackColor = true;
+            cb500.CheckedChanged += checkBox1_CheckedChanged;
+            // 
+            // cb750
+            // 
+            cb750.AutoSize = true;
+            cb750.Location = new Point(320, 206);
+            cb750.Name = "cb750";
+            cb750.Size = new Size(119, 24);
+            cb750.TabIndex = 11;
+            cb750.Text = "SUSU 750 ML";
+            cb750.UseVisualStyleBackColor = true;
+            // 
+            // cb1000
+            // 
+            cb1000.AutoSize = true;
+            cb1000.Location = new Point(528, 206);
+            cb1000.Name = "cb1000";
+            cb1000.Size = new Size(127, 24);
+            cb1000.TabIndex = 12;
+            cb1000.Text = "SUSU 1000 ML";
+            cb1000.UseVisualStyleBackColor = true;
+            // 
             // UcKatalog
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Silver;
+            Controls.Add(cb1000);
+            Controls.Add(cb750);
+            Controls.Add(cb500);
             Controls.Add(btnLanjut);
-            Controls.Add(rb500);
-            Controls.Add(rb750);
-            Controls.Add(rb1000);
             Controls.Add(label1);
             Name = "UcKatalog";
             Size = new Size(776, 549);
@@ -108,9 +106,9 @@
         #endregion
 
         private Button btnLanjut;
-        private RadioButton rb500;
-        private RadioButton rb750;
-        private RadioButton rb1000;
         private Label label1;
+        private CheckBox cb500;
+        private CheckBox cb750;
+        private CheckBox cb1000;
     }
 }

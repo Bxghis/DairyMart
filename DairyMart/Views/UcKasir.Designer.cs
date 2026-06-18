@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            btnTambahStok = new Button();
             dgvStokOffline = new DataGridView();
             btnLogout = new Button();
             button1 = new Button();
@@ -45,17 +44,6 @@
             btnLogoutt = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvStokOffline).BeginInit();
             SuspendLayout();
-            // 
-            // btnTambahStok
-            // 
-            btnTambahStok.BackColor = Color.Cyan;
-            btnTambahStok.Location = new Point(385, 421);
-            btnTambahStok.Name = "btnTambahStok";
-            btnTambahStok.Size = new Size(94, 29);
-            btnTambahStok.TabIndex = 9;
-            btnTambahStok.Text = "Tambah Stok Offline";
-            btnTambahStok.UseVisualStyleBackColor = false;
-            btnTambahStok.Click += btnTambahStok_Click;
             // 
             // dgvStokOffline
             // 
@@ -199,7 +187,6 @@
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(btnLogout);
-            Controls.Add(btnTambahStok);
             Controls.Add(dgvStokOffline);
             Name = "UcKasir";
             Size = new Size(767, 518);
@@ -210,8 +197,6 @@
         }
 
         #endregion
-
-        private Button btnTambahStok;
         private DataGridView dgvStokOffline;
         private Button btnLogout;
         private Button button1;

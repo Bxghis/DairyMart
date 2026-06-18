@@ -49,31 +49,6 @@ namespace DairyMart.Views
             }
         }
 
-        private void btnTambahStok_Click(object sender, EventArgs e)
-        {
-            string nama = txtNamaProduk.Text;
-            string tgl = txtTglKadaluarsa.Text; // Variabel status gw buang karena udah diurus Trigger DB
-
-            int qty = 0;
-            int.TryParse(txtJumlah.Text, out qty);
-
-            if (string.IsNullOrWhiteSpace(nama))
-            {
-                MessageBox.Show("Isi nama produk dulu bosku!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            // AMAN: Cuma 3 parameter
-            string respon = kasirController.TambahProdukOffline(nama, qty, tgl);
-
-            if (respon == "SUKSES")
-            {
-                MessageBox.Show("Barang baru berhasil masuk kulkas!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                RefreshTabel();
-                BersihkanForm();
-            }
-            else { MessageBox.Show(respon, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
-        }
 
         private void btnEdit_Click(object sender, EventArgs e)
         {

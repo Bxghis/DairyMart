@@ -28,35 +28,6 @@ namespace DairyMart.Controllers
         }
 
 
-        public string TambahProdukOffline(string nama, int stokOffline, string tglKadaluarsa)
-        {
-            using (var conn = new Koneksi().GetConnection())
-            {
-                try
-                {
-                    conn.Open();
-                    string query = @"INSERT INTO produk 
-                             (id_kategori, nama_produk, ukuran, harga, stok_offline, stok_online, tgl_kadaluarsa) 
-                             VALUES 
-                             (1, @nama, 'Default', 25000, @stokOffline, 0, @tgl)";
-
-                    using (var cmd = new NpgsqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@nama", nama);
-                        cmd.Parameters.AddWithValue("@stokOffline", stokOffline);
-
-                        DateTime parsedDate;
-                        if (DateTime.TryParse(tglKadaluarsa, out parsedDate)) { cmd.Parameters.AddWithValue("@tgl", parsedDate); }
-                        else { cmd.Parameters.AddWithValue("@tgl", DBNull.Value); }
-
-                        cmd.ExecuteNonQuery();
-                    }
-                    return "SUKSES";
-                }
-                catch (Exception ex) { return "Gagal Bikin Produk: " + ex.Message; }
-            }
-        }
-
         public string UpdateProdukOffline(int idProduk, string nama, int stokOffline, string tglKadaluarsa)
         {
             using (var conn = new Koneksi().GetConnection())

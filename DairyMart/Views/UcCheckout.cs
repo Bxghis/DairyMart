@@ -1,65 +1,53 @@
 ﻿using System;
+using System.Data; // 🔥 WAJIB TAMBAH INI BUAT DATATABLE KERANJANG
 using System.Windows.Forms;
 using DairyMart.Controllers;
-using DairyMart.Models; // 🔥 WAJIB DITAMBAHIN BIAR BISA BACA SESSIONDATA!
+using DairyMart.Models;
 
 namespace DairyMart.Views
 {
     public partial class UcCheckout : UserControl
     {
-        private string namaProdukBeli;
-        private int hargaProdukBeli;
+        // 1. Siapin wadah buat nampung keranjang dari katalog
+        private DataTable keranjangBelanja;
+        private int totalKeranjangAwal = 0;
 
-        public UcCheckout(string namaSusu, int hargaSusu)
+        // 🔥 PERUBAHAN: Sekarang form ini nerima DataTable, bukan 1 string doang!
+        public UcCheckout(DataTable keranjangDariKatalog)
         {
             InitializeComponent();
-
-            namaProdukBeli = namaSusu;
-            hargaProdukBeli = hargaSusu;
+            keranjangBelanja = keranjangDariKatalog;
         }
 
         private CheckoutController controller = new CheckoutController();
 
         private void UcCheckout_Load(object sender, EventArgs e)
         {
-            lblNamaProduk.Text = namaProdukBeli;
-            lblHarga.Text = "Rp " + hargaProdukBeli.ToString("#,##0");
+            // Tampilkan keranjang ke layar
+            dgvKeranjangCheckout.DataSource = keranjangBelanja;
 
-            txtTotalBayar.Text = "Rp " + hargaProdukBeli.ToString("#,##0");
+            // Hitung total harga semua barang di keranjang sebelum dikali langganan
+            HitungTotalAwal();
         }
 
-
-        private void btnKembali_Click(object sender, EventArgs e)
+        private void HitungTotalAwal()
         {
-            FormDashboard bapak = (FormDashboard)this.FindForm();
-            if (bapak != null)
+            totalKeranjangAwal = 0;
+            foreach (DataRow row in keranjangBelanja.Rows)
             {
-                bapak.TampilkanHalaman(new UcKatalog()); // Balik milih barang lagi bray
+                totalKeranjangAwal += Convert.ToInt32(row["Subtotal"]);
             }
-        }
-
-        private void btnLogout_Click(object sender, EventArgs e)
-        {
-            DialogResult dialog = MessageBox.Show("Terima kasih sudah berbelanja di DairyMart! Keluar aplikasi?", "Konfirmasi Selesai", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-
-            if (dialog == DialogResult.Yes)
-            {
-                Form bapak = this.FindForm();
-                if (bapak != null)
-                {
-                    new FormLogin().Show();
-                    bapak.Close();
-                }
-            }
+            txtTotalBayar.Text = "Rp " + totalKeranjangAwal.ToString("#,##0");
         }
 
         private void cmbTipeTransaksi_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int totalAkhir = hargaProdukBeli;
+            // Logika Skenario 1: Kalau milih langganan, SELURUH isi keranjang dikali 8
+            int totalAkhir = totalKeranjangAwal;
 
             if (cmbTipeTransaksi.Text.Contains("Langganan"))
             {
-                totalAkhir = hargaProdukBeli * 8;
+                totalAkhir = totalKeranjangAwal * 8;
             }
 
             txtTotalBayar.Text = "Rp " + totalAkhir.ToString("#,##0");
@@ -73,29 +61,30 @@ namespace DairyMart.Views
                 return;
             }
 
-            int qtyBeli = 1;
+            int totalAkhir = totalKeranjangAwal;
             if (cmbTipeTransaksi.Text.Contains("Langganan"))
             {
-                qtyBeli = 8;
+                totalAkhir = totalKeranjangAwal * 8;
             }
 
-            int totalAkhir = hargaProdukBeli * qtyBeli;
-
-            // 🔥 PERUBAHAN 1: Tarik ID dari ingatan aplikasi (SessionData)
             int idPelangganAsli = SessionData.IdPelangganAktif;
 
-            // 🔥 PERUBAHAN 2: Masukin idPelangganAsli sebagai parameter PERTAMA!
-            string respon = controller.ProsesPembayaran(idPelangganAsli, namaProdukBeli, cmbTipeTransaksi.Text, cmbMetode.Text, totalAkhir, qtyBeli);
+            // 🔥 PERUBAHAN: Kirim DataTable Keranjang ke Controller
+            string respon = controller.ProsesPembayaranKeranjang(idPelangganAsli, keranjangBelanja, cmbTipeTransaksi.Text, cmbMetode.Text, totalAkhir);
 
             if (respon == "SUKSES")
             {
-                string struk = "PEMBAYARAN BERHASIL!\n\n" +
-                               "Produk : " + namaProdukBeli + "\n" +
-                               "Jumlah : " + qtyBeli + " item\n" +
-                               "Tipe   : " + cmbTipeTransaksi.Text + "\n" +
-                               "Metode : " + cmbMetode.Text + "\n" +
-                               "Total  : " + txtTotalBayar.Text + "\n\n" +
-                               "Terima kasih sudah berbelanja di DairyMart!";
+                // Bikin Struk Keren yang ngelist semua barang
+                string struk = "PEMBAYARAN BERHASIL!\n\nDAFTAR BARANG:\n";
+                foreach (DataRow row in keranjangBelanja.Rows)
+                {
+                    struk += $"- {row["Nama_Produk"]} (x{row["Qty"]})\n";
+                }
+
+                struk += $"\nTipe   : {cmbTipeTransaksi.Text}\n" +
+                         $"Metode : {cmbMetode.Text}\n" +
+                         $"Total  : Rp {totalAkhir.ToString("#,##0")}\n\n" +
+                         "Terima kasih sudah berbelanja di DairyMart!";
 
                 MessageBox.Show(struk, "Transaksi Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -109,6 +98,15 @@ namespace DairyMart.Views
             }
         }
 
+        private void btnKembali_Click(object sender, EventArgs e)
+        {
+            FormDashboard bapak = (FormDashboard)this.FindForm();
+            if (bapak != null)
+            {
+                bapak.TampilkanHalaman(new UcKatalog());
+            }
+        }
+
         private void btnLogoutt_Click(object sender, EventArgs e)
         {
             DialogResult dialog = MessageBox.Show("Terima kasih sudah berbelanja di DairyMart! Keluar aplikasi?", "Konfirmasi Keluar", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
@@ -116,7 +114,6 @@ namespace DairyMart.Views
             if (dialog == DialogResult.Yes)
             {
                 Form bapak = this.FindForm();
-
                 if (bapak != null)
                 {
                     new FormLogin().Show();

@@ -36,7 +36,6 @@
             label3 = new Label();
             txtTglKadaluarsa = new TextBox();
             txtStatusKelayakan = new TextBox();
-            btnTambahStok = new Button();
             label2 = new Label();
             dgvStok = new DataGridView();
             label1 = new Label();
@@ -72,7 +71,6 @@
             tabPage1.Controls.Add(label3);
             tabPage1.Controls.Add(txtTglKadaluarsa);
             tabPage1.Controls.Add(txtStatusKelayakan);
-            tabPage1.Controls.Add(btnTambahStok);
             tabPage1.Controls.Add(label2);
             tabPage1.Controls.Add(dgvStok);
             tabPage1.Controls.Add(label1);
@@ -140,17 +138,6 @@
             txtStatusKelayakan.Name = "txtStatusKelayakan";
             txtStatusKelayakan.Size = new Size(106, 27);
             txtStatusKelayakan.TabIndex = 6;
-            // 
-            // btnTambahStok
-            // 
-            btnTambahStok.BackColor = Color.FromArgb(0, 192, 192);
-            btnTambahStok.Location = new Point(402, 311);
-            btnTambahStok.Name = "btnTambahStok";
-            btnTambahStok.Size = new Size(76, 29);
-            btnTambahStok.TabIndex = 3;
-            btnTambahStok.Text = "Tambah Stok";
-            btnTambahStok.UseVisualStyleBackColor = false;
-            btnTambahStok.Click += btnTambah_Click;
             // 
             // label2
             // 
@@ -265,7 +252,6 @@
         private Label label3;
         private TextBox txtTglKadaluarsa;
         private TextBox txtStatusKelayakan;
-        private Button btnTambahStok;
         private Label label2;
         private DataGridView dgvStok;
         private Label label1;

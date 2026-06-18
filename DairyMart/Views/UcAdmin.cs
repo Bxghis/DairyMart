@@ -53,34 +53,6 @@ namespace DairyMart.Views
             }
         }
 
-        private void btnTambah_Click(object sender, EventArgs e)
-        {
-            string namaBaru = txtNamaProduk.Text;
-            string tglBaru = txtTglKadaluarsa.Text;
-
-            int stokBaru = 0;
-            int.TryParse(txtJumlah.Text, out stokBaru);
-
-            if (string.IsNullOrWhiteSpace(namaBaru))
-            {
-                MessageBox.Show("Nama Produk wajib diisi bosku!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            // AMAN: Cuma 3 Parameter
-            string respon = adminController.TambahProdukBaru(namaBaru, stokBaru, tglBaru);
-
-            if (respon == "SUKSES")
-            {
-                MessageBox.Show("Produk baru berhasil ditambah!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                RefreshSemuaTabel();
-                BersihkanForm();
-            }
-            else
-            {
-                MessageBox.Show(respon, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
 
         private void btnEdit_Click(object sender, EventArgs e)
         {
