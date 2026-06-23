@@ -124,7 +124,7 @@ INSERT INTO produk (id_kategori, nama_produk, ukuran, harga, stok_online, stok_o
 
 CREATE OR REPLACE VIEW v_stok_kulkas AS
 SELECT p.id_produk, p.nama_produk, k.nama_kategori, p.stok_offline, p.tgl_kadaluarsa, p.status_kelayakan,
-    CASE WHEN p.stok_offline = 0 THEN 'HABIS' WHEN p.stok_offline < 10 THEN 'MENIPIS' WHEN p.stok_offline > 10 THEN 'AMAN' WHEN p 'AMAN BANGET' END AS status_stok_kulkas
+    CASE WHEN p.stok_offline = 0 THEN 'HABIS' WHEN p.stok_offline < 10 THEN 'MENIPIS' ELSE 'AMAN' END AS status_stok_kulkas
 FROM produk p JOIN kategori_produk k ON p.id_kategori = k.id_kategori;
 
 CREATE OR REPLACE VIEW v_stok_gudang AS
