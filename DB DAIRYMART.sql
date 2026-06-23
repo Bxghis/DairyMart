@@ -122,19 +122,16 @@ INSERT INTO produk (id_kategori, nama_produk, ukuran, harga, stok_online, stok_o
 
 -- [3] VIEWS 
 
--- A. VIEW KASIR (Hanya Stok Offline)
 CREATE OR REPLACE VIEW v_stok_kulkas AS
 SELECT p.id_produk, p.nama_produk, k.nama_kategori, p.stok_offline, p.tgl_kadaluarsa, p.status_kelayakan,
     CASE WHEN p.stok_offline = 0 THEN 'HABIS' WHEN p.stok_offline < 10 THEN 'MENIPIS' ELSE 'AMAN' END AS status_stok_kulkas
 FROM produk p JOIN kategori_produk k ON p.id_kategori = k.id_kategori;
 
--- B. VIEW ADMIN (Hanya Stok Online)
 CREATE OR REPLACE VIEW v_stok_gudang AS
 SELECT p.id_produk, p.nama_produk, k.nama_kategori, p.stok_online, p.tgl_kadaluarsa, p.status_kelayakan,
     CASE WHEN p.stok_online = 0 THEN 'HABIS' WHEN p.stok_online < 10 THEN 'MENIPIS' ELSE 'AMAN' END AS status_stok_gudang
 FROM produk p JOIN kategori_produk k ON p.id_kategori = k.id_kategori;
 
--- C. VIEW RIWAYAT GLOBAL (Gabungan Langganan Online & Kasir Offline pakai UNION & SUBQUERY)
 CREATE OR REPLACE VIEW v_riwayat_global AS
 SELECT 
     'Offline (Kasir)' AS sumber_transaksi,
@@ -150,14 +147,6 @@ SELECT
     l.tanggal_transaksi AS tanggal
 FROM langganan l;
 
--- D. VIEW LAPORAN (Pakai GROUP BY & ROLL UP)
-CREATE OR REPLACE VIEW v_laporan_penjualan_rollup AS
-SELECT 
-    COALESCE(nama_produk, 'GRAND TOTAL PENDAPATAN') AS nama_produk, 
-    SUM(nominal) AS total_pendapatan 
-FROM v_riwayat_global 
-GROUP BY ROLLUP(nama_produk);
-
 
 -- [4] FUNCTIONS & TRIGGERS (Syarat 7 & 10)
 
@@ -172,16 +161,23 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_cegah_stok_minus BEFORE UPDATE ON produk FOR EACH ROW EXECUTE FUNCTION fn_cegah_stok_minus();
 
--- B. Pencatat Log Otomatis (Masuk ke Tabel ke-8)
-CREATE OR REPLACE FUNCTION fn_catat_log_transaksi() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION fn_catat_log_global() 
+RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO log_transaksi (keterangan)
-    VALUES ('Transaksi Baru! ID Produk ' || NEW.id_produk || ' terjual sebanyak ' || NEW.jumlah || ' pcs.');
+    -- 1. Cek apakah yang masuk adalah transaksi Online (Tabel langganan)
+    IF TG_TABLE_NAME = 'langganan' THEN
+        INSERT INTO log_transaksi (keterangan)
+        VALUES ('[ONLINE] Transaksi Langganan Baru! ID Produk ' || NEW.id_produk || ' terjual sebanyak ' || NEW.jumlah || ' pcs.');
+        
+    -- 2. Cek apakah yang masuk adalah transaksi Offline (Tabel transaksi_offline)
+    ELSIF TG_TABLE_NAME = 'transaksi_offline' THEN
+        INSERT INTO log_transaksi (keterangan)
+        VALUES ('[OFFLINE] Kasir Toko Jualan! ID Produk ' || NEW.id_produk || ' laku eceran sebanyak ' || NEW.kuantitas || ' pcs.');
+    END IF;
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_setelah_checkout AFTER INSERT ON langganan FOR EACH ROW EXECUTE FUNCTION fn_catat_log_transaksi();
 
 -- 1. Buat Fungsi Logikanya (Menghitung selisih hari)
 CREATE OR REPLACE FUNCTION fn_cek_status_kelayakan()
@@ -208,40 +204,3 @@ CREATE TRIGGER trg_update_status_otomatis
 BEFORE INSERT OR UPDATE ON produk
 FOR EACH ROW 
 EXECUTE FUNCTION fn_cek_status_kelayakan();
-
-
--- [5] STORED PROCEDURES & TRANSACTIONS (Syarat 8 & 9)
-
--- A. PROSEDUR TRANSAKSI ONLINE (Buat Form Checkout lu)
-CREATE OR REPLACE PROCEDURE sp_checkout_langganan(
-    p_pel INT, p_prod INT, p_metode INT, p_qty INT, p_total INT
-)
-LANGUAGE plpgsql AS $$
-BEGIN
-    -- Validasi
-    IF p_total <= 0 THEN RAISE EXCEPTION 'Total bayar tidak valid!'; END IF;
-    -- Potong Stok Online
-    UPDATE produk SET stok_online = stok_online - p_qty WHERE id_produk = p_prod;
-    -- Masukkan ke riwayat
-    INSERT INTO langganan (id_pelanggan, id_produk, id_metode, jumlah, total_bayar)
-    VALUES (p_pel, p_prod, p_metode, p_qty, p_total);
-    
-    COMMIT; -- Transaksi dikunci permanen
-END;
-$$;
-
--- B. PROSEDUR TRANSAKSI OFFLINE (Buat Form Kasir lu)
-CREATE OR REPLACE PROCEDURE sp_kasir_jualan(
-    p_id_produk INT, p_qty INT, p_total_harga NUMERIC
-)
-LANGUAGE plpgsql AS $$
-BEGIN
-    -- Potong Stok Offline
-    UPDATE produk SET stok_offline = stok_offline - p_qty WHERE id_produk = p_id_produk;
-    -- Masukkan ke riwayat kasir
-    INSERT INTO transaksi_offline (id_produk, kuantitas, total_harga)
-    VALUES (p_id_produk, p_qty, p_total_harga);
-    
-    COMMIT; -- Transaksi dikunci permanen
-END;
-$$;
