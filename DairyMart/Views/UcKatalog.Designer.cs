@@ -43,7 +43,7 @@
             // 
             // btnLanjut
             // 
-            btnLanjut.Location = new Point(606, 441);
+            btnLanjut.Location = new Point(606, 397);
             btnLanjut.Name = "btnLanjut";
             btnLanjut.Size = new Size(112, 39);
             btnLanjut.TabIndex = 9;
@@ -136,7 +136,7 @@
             Controls.Add(btnLanjut);
             Controls.Add(label1);
             Name = "UcKatalog";
-            Size = new Size(776, 549);
+            Size = new Size(776, 604);
             Load += UcKatalog_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();

@@ -79,23 +79,45 @@ namespace DairyMart.Controllers
 
         public string SimpanTransaksiOffline(int idProduk, int qty, int total)
         {
-            try
+            using (var conn = new Koneksi().GetConnection())
             {
-                using (var conn = new Koneksi().GetConnection())
+                conn.Open();
+     
+                using (var transaction = conn.BeginTransaction())
                 {
-                    conn.Open();
-                    string query = "CALL sp_kasir_jualan(@id_prod, @qty, @total)";
-                    using (var cmd = new NpgsqlCommand(query, conn))
+                    try
                     {
-                        cmd.Parameters.AddWithValue("@id_prod", idProduk);
-                        cmd.Parameters.AddWithValue("@qty", qty);
-                        cmd.Parameters.AddWithValue("@total", total);
-                        cmd.ExecuteNonQuery();
+                        // 1. Potong Stok Kulkas (stok_offline)
+                        string queryUpd = "UPDATE produk SET stok_offline = stok_offline - @qty WHERE id_produk = @id";
+                        using (var cmdUpd = new NpgsqlCommand(queryUpd, conn, transaction))
+                        {
+                            cmdUpd.Parameters.AddWithValue("@qty", qty);
+                            cmdUpd.Parameters.AddWithValue("@id", idProduk);
+                            cmdUpd.ExecuteNonQuery();
+                        }
+
+                        // 2. Catat ke Riwayat Kasir
+                        string queryIns = "INSERT INTO transaksi_offline (id_produk, kuantitas, total_harga) VALUES (@prod, @qty, @tot)";
+                        using (var cmdIns = new NpgsqlCommand(queryIns, conn, transaction))
+                        {
+                            cmdIns.Parameters.AddWithValue("@prod", idProduk);
+                            cmdIns.Parameters.AddWithValue("@qty", qty);
+                            cmdIns.Parameters.AddWithValue("@tot", total);
+                            cmdIns.ExecuteNonQuery();
+                        }
+
+                      
+                        transaction.Commit();
+                        return "SUKSES";
                     }
-                    return "SUKSES";
+                    catch (Exception ex)
+                    {
+                    
+                        transaction.Rollback();
+                        return "Gagal Transaksi: " + ex.Message;
+                    }
                 }
             }
-            catch (Exception ex) { return "Gagal Transaksi: " + ex.Message; }
         }
     }
 }
