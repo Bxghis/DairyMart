@@ -54,8 +54,8 @@ namespace DairyMart.Controllers
 
                             if (tipeTransaksi.Contains("Langganan"))
                             {
-                                int qtyLangganan = qtyBeli * 8; // Aturan langganan dikali 8
-                                int subtotalLangganan = subtotalBarang * 8;
+                                int qtyLangganan = qtyBeli * 4; 
+                                int subtotalLangganan = subtotalBarang * 4;
 
                                 // A. Potong Stok Online Gudang
                                 using (var cmdUpd = new NpgsqlCommand("UPDATE produk SET stok_online = stok_online - @qty WHERE id_produk = @id", conn, transaction))
